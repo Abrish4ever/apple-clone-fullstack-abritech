@@ -3,6 +3,9 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const dotenv = require("dotenv")
 dotenv.config();
+// const { Sequelize } = require("sequelize");
+
+const port = process.env.DB_PORT || 5000;
 
 
 const app = express();
@@ -19,6 +22,55 @@ app.use(
 );
 
 app.use(express.json());
+
+// ✅ Backend route to safely call the YouTube API
+const axios = require("axios");
+
+app.get("/api/apple-videos", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://youtube.googleapis.com/youtube/v3/search",
+      {
+        params: {
+          part: "snippet",
+          channelId: "UCE_M8A5yxnLfW0KghEeajjw",
+          maxResults: 8,
+          order: "date",
+          key: process.env.API_KEY,
+        },
+      }
+    );
+
+    res.json(response.data.items);
+  } catch (error) {
+    console.error(
+      "❌ Error fetching Apple videos:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Failed to fetch Apple videos" });
+  }
+});
+
+
+
+// // Use PostgreSQL database from Render
+// const myDB = new Sequelize(process.env.DATABASE_URL, {
+//   dialect: "postgres",
+//   protocol: "postgres",
+//   dialectOptions: {
+//     ssl: {
+//       require: true,
+//       rejectUnauthorized: false, // Important for Render SSL connections
+//     },
+//   },
+//   logging: false,
+// });
+
+// myDB.authenticate()
+//   .then(() => console.log("✅ Connected to PostgreSQL via Sequelize"))
+//   .catch((err) => console.error("❌ Database connection failed:", err));
+
+
 
 const myDB = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -212,6 +264,6 @@ app.get("/iphones/:id", (req, res) => {
 });
 
 
-app.listen(8000, () => {
-  console.log("Server is run on: http://localhost:8000");
+app.listen(port, () => {
+  console.log(`Server running on port: http://localhost:${port}`);
 });

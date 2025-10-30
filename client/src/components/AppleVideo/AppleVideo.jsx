@@ -2,24 +2,20 @@ import React, { useEffect, useState } from "react";
 import "./AppleYoutube.css";
 
 const AppleYoutube = () => {
-  const [appleVideos, setAppleVideos] = useState([]);
+ const [appleVideos, setAppleVideos] = useState([]);
 
-  const apiKey = import.meta.env.VITE_API_KEY;
-  useEffect(() => {
-    const getAppleVideo = async () => {
-      try {
-        const response = await fetch(
-          `https://youtube.googleapis.com/youtube/v3/search?part=snippet&channelId=UCE_M8A5yxnLfW0KghEeajjw&maxResults=8&order=date&key=${apiKey}`
-        );
-        const data = await response.json();
-        setAppleVideos(data?.items);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getAppleVideo();
-  }, []);
-  // console.log(appleVideos)
+ useEffect(() => {
+   const getAppleVideo = async () => {
+     try {
+       const response = await fetch("http://localhost:8000/api/apple-videos");
+       const data = await response.json();
+       setAppleVideos(data?.items || data); // Use data if items doesn't exist
+     } catch (error) {
+       console.error("Error fetching apple videos:", error);
+     }
+   };
+   getAppleVideo();
+ }, []);
   return (
     <section className="youtubeVideosWrapper">
       <div className="allVideosWrapper">
